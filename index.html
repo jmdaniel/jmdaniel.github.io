@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pricing guide</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Pricing guide">
+  <meta name="author" content="Jean-Michel Coeur, July 2016">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/solarized_light.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/codefont.css"></link>
+<link rel=stylesheet href="./assets/css/codefontsmall.css"></link>
+<link rel=stylesheet href="./assets/css/codemargin.css"></link>
+<link rel=stylesheet href="./assets/css/codemargin2.css"></link>
+<link rel=stylesheet href="./assets/css/outfont.css"></link>
+<link rel=stylesheet href="./assets/css/outmargin.css"></link>
+<link rel=stylesheet href="./assets/css/outmargin2.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+<link rel=stylesheet href="./assets/css/slidify.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Pricing guide</h1>
+    <h2>Choosing a public housing flat in Singapore</h2>
+    <p>Jean-Michel Coeur, July 2016<br/>Coursera &quot;Data Product&quot; Course</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <article data-timings="">
+    <style type="text/css">
+body {
+background:white;
+}
+</style>
+
+<h2>1. Choosing a public housing flat in Singapore</h2>
+
+<ol>
+<li><p>Singapore has had an extensive public housing program since its inception in 1960, managed by the Housing Development Board (HDB). </p>
+
+<ul>
+<li>1+ millions flats, split between 23 HDB towns and 3 estates. </li>
+<li>Any HDB flat can be sold on the reseller market after 5 years of occupancy.</li>
+</ul></li>
+<li><p>This application predicts the price of a public housing flat on the reseller market. Price is based on:</p>
+
+<ul>
+<li>Location within Singapore: HDB town, </li>
+<li>The type of the flat: 2 Rooms, 5 rooms ...,</li>
+<li>The flat model: standard, improved...</li>
+<li>The storeys range: &quot;07 TO 09&quot;, &quot;10 TO 12&quot; etc...,</li>
+<li>Year when the lease started: all HDB flats have a 99 years lease at time of initial construction</li>
+</ul></li>
+<li><p>The price prediction algorithm is using a Linear Model</p>
+
+<ul>
+<li>Model built with the <a href="https://data.gov.sg/dataset/resale-flat-prices/resource/83b2fc37-ce8c-4df4-968b-370fd818138b">Singapore Housing Development Board (HDB) Resale price dataset </a>.</li>
+<li>Dataset includes 40,000 flats transations on the reseller market from 2014 o 2016, during which prices have ben relatively stable.</li>
+</ul></li>
+<li><p>This application has been built with <a href="http://shiny.rstudio.com/">Shiny</a>, a Web application framework for R.</p></li>
+<li><p>Online application is available at <a href="ttps://jmdaniel.shinyapps.io/HDBFlatPriceApp/">HDB Flat Price App</a></p></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="codefontsmall codemargin outmargin" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>2. Building Linear Model</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:50%;'>
+  <p>Construction of the Linear model:</p>
+
+<pre><code class="r">fit_lmSimple &lt;- lm(formula = resale_price ~ town + 
+            flat_model * lease_start_date + flat_type + storey_range, 
+            data = training)
+</code></pre>
+
+<p>Most important predictors:</p>
+
+<pre><code class="r">head(imp[order(imp$MeanGini, decreasing = TRUE), ], 4)
+</code></pre>
+
+<pre><code>##                  ind MeanGini
+## 19     townSEMBAWANG 67.26240
+## 24     townWOODLANDS 66.36567
+## 8  townCHOA CHU KANG 65.35519
+## 20      townSENGKANG 61.06183
+</code></pre>
+
+<p>The resale price of a flat depends mostly on (decreasing order):</p>
+
+<ul>
+<li>Location : HDB town</li>
+<li>Number of years left of the lease</li>
+<li>Type of appartment</li>
+<li>Floor level</li>
+</ul>
+
+</div>
+<div style='float:right;width:50%;'>
+  <p>Adjusted R squared of the linear model:</p>
+
+<pre><code>## [1] 0.828
+</code></pre>
+
+<p>The price prediction will be carried with a 95% confidence interval.
+Prediction of 3 ROOM flat, model A, floor &quot;07 TO 09&quot; in ANG MO KIO, with lease starting in 1995:</p>
+
+<pre><code class="r">ndata &lt;- c(&quot;ANG MO KIO&quot;,&quot;3 ROOM&quot;, &quot;Model A&quot;, &quot;07 TO 09&quot;, 1995)
+new_pred &lt;- predict_price(fit_model, ndata)
+new_pred$Price &lt;- as.character(round(new_pred$Price / 1000, 0) * 1000)
+new_pred$Lower &lt;- as.character(round(new_pred$Lower / 1000, 0) * 1000)
+new_pred$Upper &lt;- as.character(round(new_pred$Upper / 1000, 0) * 1000)
+new_pred
+</code></pre>
+
+<pre><code>##         town flat_type flat_model storey_range lease_start_date  Price
+## 1 ANG MO KIO    3 ROOM    Model A     07 TO 09             1995 414000
+##    Lower  Upper
+## 1 410000 418000
+</code></pre>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="codefont codemargin outmargin" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>3. Shiny User Interface</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <p>The application User Interface reflects the important predictors that have been identified by the statistical model.</p>
+
+<p><img src="./assets/img/SelectionCriteria.png" height="450" width="350"></p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>To compute the resale price, we use a reactive variable, which is triggered when the user clicks on &quot;Compute resale price&quot;:</p>
+
+<pre><code class="r">  # Predict the price using a reactive variable 
+  prediction &lt;- eventReactive(input$compute, {
+    # Gather the input data
+    ndata &lt;- c(input$towns, input$types, input$models, 
+               input$storeys, input$start_year_lease)
+
+    # Predict the price using the Linear model
+    new_pred &lt;- predict_price(fit_model, ndata)
+
+    # We add the new prediction to the previous one 
+    # WITHOUT resetting the dataframe: use f &quot;&lt;&lt;-&quot;
+    price_table &lt;&lt;- rbind(price_table, new_pred)
+  })
+
+  # Display the updated table with all predictions
+  output$oselection &lt;- renderTable ({prediction()})
+</code></pre>
+
+<p>The price is added to the price table and displayed. </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="codefont codemargin2 outmargin2" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>4. Plotting predicted prices</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <p>When the user selects the tab &quot;Flats on Singapore&#39;s map&quot;, the flat location is displayed with its characteristic and its indicative price. </p>
+
+<ul>
+<li>We use a Leaflet object to draw the Singapore map with the coordinates of the HDB towns. </li>
+<li>Example with a predicted price for a 4 ROOM flat with lease starting in 1980 in the HDB town &quot;Bishan&quot;:</li>
+</ul>
+
+<p>This map displays all HDB towns from the generated price table, with all selected flats.</p>
+
+<p>Example of a recent HDB flat program: Pinnacle @ Duxton.
+<img src="./assets/img/singapore-pinnacle-duxton.jpg" height="120" width="170"></p>
+
+<p>Thank you for reading this presentation.</p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/mapLeafLet-1.png" alt="plot of chunk mapLeafLet"></p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='NA'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='2. Building Linear Model'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='3. Shiny User Interface'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='4. Plotting predicted prices'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

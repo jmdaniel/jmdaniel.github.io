@@ -1,0 +1,17 @@
+slide.codefontsmall pre {
+font-size: 14px ;
+}
+
+slide.codefont pre {
+font-size: 16px ;
+}
+
+code.r.innerCode {
+  margin-top: -1px;
+}
+
+code.no-highlight {
+  /*color: #828282;*/
+  margin-top: -1px;
+  line-height: 1em;
+}
